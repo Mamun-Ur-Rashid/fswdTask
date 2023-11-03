@@ -3,7 +3,7 @@ import BookCard from './BookCard';
 import { BookContainer, ContainerStyle } from '../component/styles/ContainerStyle';
 import { H1 , H5} from '../component/styles/ElementStyle';
 import { FilterAndSortingContainer, Dropdown, FilterDropdownButton, DropdownItem, SelectedCategory, SortButton } from '../component/styles/FilterAndSortingStyle';
-
+import { PaginationContainer, PaginationButton } from '../component/styles/PaginationStyle';
 const books = [
     {
       "id": 1,
@@ -127,57 +127,115 @@ const books = [
     }
   ]
   
-const Home = () => {
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [sortByPrice, setSortByPrice] = useState('asc'); 
-  const [showDropdown, setShowDropdown] = useState(false);
-
-  const categories = ['All','Fiction', 'Non-Fiction', 'Fantasy', 'History', 'Romance', 'Science'];
-
-  const handleCategoryClick = (category) => {
-    setActiveCategory(category);
-    setShowDropdown(false);
-  };
-
-  // Filter books based on the active category
-  const filteredBooks = activeCategory === 'All' ? books : books.filter(book => book.category === activeCategory);
-
-  // Sort books by price
-  const sortedBooks = [...filteredBooks].sort((a, b) => {
-    if (sortByPrice === 'asc') {
-      return a.price - b.price;
-    } else {
-      return b.price - a.price;
+  const Home = () => {
+    const [activeCategory, setActiveCategory] = useState('All');
+    const [sortByPrice, setSortByPrice] = useState('asc');
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const cardsPerPage = 6;
+  
+    const categories = [
+      'All',
+      'Fiction',
+      'Non-Fiction',
+      'Fantasy',
+      'History',
+      'Romance',
+      'Science',
+    ];
+  
+    const handleCategoryClick = (category) => {
+      setActiveCategory(category);
+      setShowDropdown(false);
+      setCurrentPage(1); // Reset to the first page when changing category
+    };
+  
+    const handlePaginationClick = (pageNumber) => {
+      setCurrentPage(pageNumber);
+    };
+  
+    // Filter books based on the active category
+    const filteredBooks =
+      activeCategory === 'All' ? books : books.filter((book) => book.category === activeCategory);
+  
+    // Sort books by price
+    const sortedBooks = [...filteredBooks].sort((a, b) => {
+      if (sortByPrice === 'asc') {
+        return a.price - b.price;
+      } else {
+        return b.price - a.price;
+      }
+    });
+  
+    // Pagination Logic
+    const indexOfLastCard = currentPage * cardsPerPage;
+    const indexOfFirstCard = indexOfLastCard - cardsPerPage;
+    const currentCards = sortedBooks.slice(indexOfFirstCard, indexOfLastCard);
+  
+    // Generate an array of page numbers for pagination buttons
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(sortedBooks.length / cardsPerPage); i++) {
+      pageNumbers.push(i);
     }
-  });
-
-  return (
-    <BookContainer>
-      <H1>Our All Books</H1>
-      <H5>Filter by Category and Sorting by Price for All Books</H5>
-      <FilterAndSortingContainer>
-        <FilterDropdownButton onClick={() => setShowDropdown(!showDropdown)}>
+  
+    return (
+      <BookContainer>
+        <H1>Our All Books</H1>
+        <H5>Filter by Category and Sorting by Price for All Books</H5>
+        <FilterAndSortingContainer>
+          <FilterDropdownButton onClick={() => setShowDropdown(!showDropdown)}>
             Filter by Category
             <SelectedCategory>{activeCategory}</SelectedCategory>
           </FilterDropdownButton>
           <Dropdown showDropdown={showDropdown}>
-            {categories.map(category => (
-              <DropdownItem key={category} onClick={() => handleCategoryClick(category)}>
+            {categories.map((category) => (
+              <DropdownItem
+                key={category}
+                onClick={() => handleCategoryClick(category)}
+              >
                 {category}
               </DropdownItem>
             ))}
-          </Dropdown> 
-          <SortButton onClick={() => setSortByPrice(sortByPrice === 'asc' ? 'desc' : 'asc')} style={{ backgroundColor: sortByPrice === 'asc' ? '#f39c12' : '#e67e22' }}>
+          </Dropdown>
+          <SortButton
+            onClick={() =>
+              setSortByPrice(sortByPrice === 'asc' ? 'desc' : 'asc')
+            }
+            style={{
+              backgroundColor:
+                sortByPrice === 'asc' ? '#f39c12' : '#e67e22',
+            }}
+          >
             {sortByPrice === 'asc' ? 'Price ↑' : 'Price ↓'}
           </SortButton>
-      </FilterAndSortingContainer>
-      <ContainerStyle>
-        {sortedBooks.map(book => (
-          <BookCard book={book} key={book.id} />
-        ))}
-      </ContainerStyle>
-    </BookContainer>
-  );
-};
-
-export default Home;
+        </FilterAndSortingContainer>
+        <ContainerStyle>
+          {currentCards.map((book) => (
+            <BookCard book={book} key={book.id} />
+          ))}
+        </ContainerStyle>
+        <PaginationContainer>
+          {pageNumbers.map((pageNumber) => (
+            <PaginationButton
+              key={pageNumber}
+              onClick={() => handlePaginationClick(pageNumber)}
+              style={{
+                backgroundColor:
+                  pageNumber === currentPage ? '#4a90e2' : '#3498db',
+              }}
+            >
+              {pageNumber}
+            </PaginationButton>
+          ))}
+        </PaginationContainer>
+      </BookContainer>
+    );
+  };
+  
+  export default Home;
+  
+  
+  
+  
+  
+  
