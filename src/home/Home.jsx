@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import BookCard from './BookCard';
-import { ContainerStyle } from '../component/styles/ContainerStyle';
+import { BookContainer, ContainerStyle } from '../component/styles/ContainerStyle';
+import { H1 , H5} from '../component/styles/ElementStyle';
+import { FilterAndSortingContainer, Dropdown, FilterDropdownButton, DropdownItem, SelectedCategory, SortButton } from '../component/styles/FilterAndSortingStyle';
 
 const books = [
     {
@@ -24,7 +26,7 @@ const books = [
       "title": "Whispers in the Dark",
       "description": "A gripping mystery novel filled with suspense.",
       "price": 9.99,
-      "category": "Mystery",
+      "category": "History",
       "image": "https://i.ibb.co/Cn3mDJr/b3.jpg"
     },
     {
@@ -32,7 +34,7 @@ const books = [
       "title": "Galactic Odyssey",
       "description": "An epic space adventure in a distant galaxy.",
       "price": 19.99,
-      "category": "Science Fiction",
+      "category": "Fiction",
       "image": "https://i.ibb.co/QcyS9gH/b4.png"
     },
     {
@@ -48,7 +50,7 @@ const books = [
       "title": "The Power Within",
       "description": "A self-help book for personal growth and empowerment.",
       "price": 14.99,
-      "category": "Self-Help",
+      "category": "History",
       "image": "https://i.ibb.co/XJBfJGM/b6.png"
     },
     {
@@ -56,7 +58,7 @@ const books = [
       "title": "Unbroken Spirit",
       "description": "The inspiring life story of a remarkable individual.",
       "price": 10.99,
-      "category": "Biography",
+      "category": "Romance",
       "image": "https://i.ibb.co/0V3nzwT/b13.png"
     },
     {
@@ -104,7 +106,7 @@ const books = [
       "title": "Whispers in the Dark",
       "description": "A gripping mystery novel filled with suspense.",
       "price": 9.99,
-      "category": "Mystery",
+      "category": "Fantasy",
       "image": "https://i.ibb.co/0V3nzwT/b13.png"
     },
     {
@@ -112,7 +114,7 @@ const books = [
       "title": "Galactic Odyssey",
       "description": "An epic space adventure in a distant galaxy.",
       "price": 19.99,
-      "category": "Science Fiction",
+      "category": "Science",
       "image": "https://i.ibb.co/sW7P9q1/b14.png"
     },
     {
@@ -126,14 +128,56 @@ const books = [
   ]
   
 const Home = () => {
-    return (
-        <ContainerStyle>
-            {books.map(book => (<BookCard 
-            book={book}
-            key={book.id}>
-            </BookCard>))}
-        </ContainerStyle>
-    );
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [sortByPrice, setSortByPrice] = useState('asc'); 
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const categories = ['All','Fiction', 'Non-Fiction', 'Fantasy', 'History', 'Romance', 'Science'];
+
+  const handleCategoryClick = (category) => {
+    setActiveCategory(category);
+    setShowDropdown(false);
+  };
+
+  // Filter books based on the active category
+  const filteredBooks = activeCategory === 'All' ? books : books.filter(book => book.category === activeCategory);
+
+  // Sort books by price
+  const sortedBooks = [...filteredBooks].sort((a, b) => {
+    if (sortByPrice === 'asc') {
+      return a.price - b.price;
+    } else {
+      return b.price - a.price;
+    }
+  });
+
+  return (
+    <BookContainer>
+      <H1>Our All Books</H1>
+      <H5>Filter by Category and Sorting by Price for All Books</H5>
+      <FilterAndSortingContainer>
+        <FilterDropdownButton onClick={() => setShowDropdown(!showDropdown)}>
+            Filter by Category
+            <SelectedCategory>{activeCategory}</SelectedCategory>
+          </FilterDropdownButton>
+          <Dropdown showDropdown={showDropdown}>
+            {categories.map(category => (
+              <DropdownItem key={category} onClick={() => handleCategoryClick(category)}>
+                {category}
+              </DropdownItem>
+            ))}
+          </Dropdown> 
+          <SortButton onClick={() => setSortByPrice(sortByPrice === 'asc' ? 'desc' : 'asc')} style={{ backgroundColor: sortByPrice === 'asc' ? '#f39c12' : '#e67e22' }}>
+            {sortByPrice === 'asc' ? 'Price ↑' : 'Price ↓'}
+          </SortButton>
+      </FilterAndSortingContainer>
+      <ContainerStyle>
+        {sortedBooks.map(book => (
+          <BookCard book={book} key={book.id} />
+        ))}
+      </ContainerStyle>
+    </BookContainer>
+  );
 };
 
 export default Home;

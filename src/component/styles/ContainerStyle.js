@@ -1,5 +1,10 @@
 import styled from 'styled-components';
 
+export const BookContainer = styled.div`
+
+`;
+
+
 export const ContainerStyle = styled.div`
     display: grid;
     grid-template-columns: 1fr;
